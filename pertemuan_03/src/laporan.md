@@ -14,7 +14,7 @@ Kelas : TI-3F
 
 ##### Kode Program
 
-``` dart
+```dart
 void main(){
     String test = "test2";
   if (test == "test1") {
@@ -31,19 +31,19 @@ void main(){
 }
 ```
 
-   Penjelasan: Terjadi eror pada output. Ada tiga kesalahan yaitu:
+Penjelasan: Terjadi eror pada output. Ada tiga kesalahan yaitu:
 
 - Pada baris ke-5 penulisan 'IF' seharusnya 'if'
 - Pada baris ke-7 penulisan 'Else' seharusnya 'else
 - pada baris ke-11 harus diberi kurung kurawal
 
-![praktikum 1](/docs/P1%20L2.png)
+![praktikum 1](/docs/P1L2.png)
 
 #### Langkah 3
 
 ##### Kode Program
 
-``` dart
+```dart
 void main(){
     String test = "test2";
   if (test == "test1") {
@@ -77,7 +77,7 @@ Penjelasan: Akan terjadi error, karena variabel 'test' sudah di definisikan dan 
 
 ##### Kode Program
 
-``` dart
+```dart
 void main(){
   int counter = 0;
     while (counter < 33) {
@@ -95,7 +95,7 @@ Penjelasan: terjadi error karena variabel 'counter' belum di inisiasi
 
 ##### Kode Program
 
-``` dart
+```dart
 void main(){
   int counter = 0;
     while (counter < 33) {
@@ -104,7 +104,7 @@ void main(){
   }
 
   do {
-    print(counter); 
+    print(counter);
     counter++;
   } while (counter < 77);
 }
@@ -120,7 +120,7 @@ Penjelasan: Kode berhasil dijalankan dan outputnya sesuai
 
 ##### Kode Program
 
-``` dart
+```dart
 void main() {
   int index;
   for (index = 10; index < 27; index++) {
@@ -129,7 +129,7 @@ void main() {
 }
 ```
 
-   Penjelasan : Terjadi error karena variabel 'index' belum diinisiasi dan beberapa penulisan 'index' masih salah yaitu 'Index'
+Penjelasan : Terjadi error karena variabel 'index' belum diinisiasi dan beberapa penulisan 'index' masih salah yaitu 'Index'
 
 ![praktikum 3](/docs/P3%20L2.png)
 
@@ -137,7 +137,7 @@ void main() {
 
 ##### Kode Program
 
-``` dart
+```dart
 void main() {
   int index;
   for (index = 10; index < 27; index++) {
@@ -152,13 +152,13 @@ void main() {
 
 ```
 
-   Penjelasan : Terjadi error karena kesalahan penulisan 'if' 'else', tidak ada kurung kurawal, seharusnya berada di dalam perulangan, dan operator || yang seharusnya &&
+Penjelasan : Terjadi error karena kesalahan penulisan 'if' 'else', tidak ada kurung kurawal, seharusnya berada di dalam perulangan, dan operator || yang seharusnya &&
 
 ![praktikum 3](/docs/P3%20L3.png)
 
 ## tugas praktikum
 
-``` dart
+```dart
 void main(){
   for(int prima = 0; prima <= 201; prima++){
     if(prima == 0) {
@@ -183,4 +183,4 @@ void main(){
 }
 ```
 
-![tugas praktikum](/docs/tugas_praktikum .png)
+![tugas praktikum](/docs/tugas_praktikum.png)
