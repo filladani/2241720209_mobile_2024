@@ -65,7 +65,7 @@ void main(){
 }
 ```
 
-Penjelasan: Akan terjadi error, karena variabel 'test' sudah di definisikan dan pada if harus bernilai boolean.
+Penjelasan: Akan.terjadi error, karena variabel 'test' sudah di definisikan dan pada if harus bernilai boolean.
 
 ![praktikum 1](../docs/P1L3.png)
 
