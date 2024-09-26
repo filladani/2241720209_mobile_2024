@@ -67,7 +67,7 @@ void main(){
 
 Penjelasan: Akan terjadi error, karena variabel 'test' sudah di definisikan dan pada if harus bernilai boolean.
 
-![praktikum 1](/docs/P1%20L3.png)
+![praktikum 1](../docs/P1L3.png)
 
 <br>
 
