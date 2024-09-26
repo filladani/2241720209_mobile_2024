@@ -37,7 +37,7 @@ Penjelasan: Terjadi eror pada output. Ada tiga kesalahan yaitu:
 - Pada baris ke-7 penulisan 'Else' seharusnya 'else
 - pada baris ke-11 harus diberi kurung kurawal
 
-![praktikum 1](/docs/P1L2.png)
+![praktikum 1](../docs/P1L2.png)
 
 #### Langkah 3
 
