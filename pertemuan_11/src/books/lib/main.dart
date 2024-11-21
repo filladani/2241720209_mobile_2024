@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:async/async.dart'; // Import untuk menggunakan Completer
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Async/Await Demo - Filla',
+      title: 'Completer Demo - Filla',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -29,41 +30,26 @@ class FuturePage extends StatefulWidget {
 }
 
 class _FuturePageState extends State<FuturePage> {
-  String result = '';
+  String result = ''; // Variabel untuk menyimpan hasil
+  late Completer<int> completer; // Variabel late Completer
 
-  /// Method asinkron untuk simulasi proses
-  Future<int> returnOneAsync() async {
-    await Future.delayed(const Duration(seconds: 3));
-    return 1;
+  Future<int> getNumber() {
+    completer = Completer<int>(); // Membuat instance Completer
+    calculate(); // Memulai perhitungan
+    return completer.future; // Mengembalikan Future dari Completer
   }
 
-  Future<int> returnTwoAsync() async {
-    await Future.delayed(const Duration(seconds: 3));
-    return 2;
-  }
-
-  Future<int> returnThreeAsync() async {
-    await Future.delayed(const Duration(seconds: 3));
-    return 3;
-  }
-
-  /// Method untuk menghitung total
-  Future<void> count() async {
-    int total = 0;
-    total += await returnOneAsync();
-    total += await returnTwoAsync();
-    total += await returnThreeAsync();
-
-    setState(() {
-      result = total.toString();
-    });
+  Future<void> calculate() async {
+    await Future.delayed(
+        const Duration(seconds: 5)); // Simulasi proses selama 5 detik
+    completer.complete(42); // Menyelesaikan Future dengan nilai 42
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Async/Await Demo'),
+        title: const Text('Completer Demo'),
       ),
       body: Center(
         child: Column(
@@ -71,9 +57,13 @@ class _FuturePageState extends State<FuturePage> {
           children: [
             ElevatedButton(
               onPressed: () {
-                count(); // Panggil metode count
+                getNumber().then((value) {
+                  setState(() {
+                    result = value.toString(); // Menampilkan hasil ke UI
+                  });
+                });
               },
-              child: const Text('GO!'),
+              child: const Text('Get Number'),
             ),
             const SizedBox(height: 20),
             Text(
