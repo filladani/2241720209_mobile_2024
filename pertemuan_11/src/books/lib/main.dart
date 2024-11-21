@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:async/async.dart'; // Mengimpor package async untuk FutureGroup
-import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -12,10 +10,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Future Demo',
+      title: 'Error Handling Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const FuturePage(),
     );
@@ -30,71 +27,46 @@ class FuturePage extends StatefulWidget {
 }
 
 class _FuturePageState extends State<FuturePage> {
-  String result = ''; // Untuk menyimpan hasil
+  String result = '';
 
-  // Method async yang menunggu selama 3 detik
-  Future<int> returnOneAsync() async {
-    await Future.delayed(const Duration(seconds: 3));
-    return 1;
-  }
-
-  Future<int> returnTwoAsync() async {
-    await Future.delayed(const Duration(seconds: 3));
-    return 2;
-  }
-
-  Future<int> returnThreeAsync() async {
-    await Future.delayed(const Duration(seconds: 3));
-    return 3;
-  }
-
-  // Method baru untuk menggunakan FutureGroup
-  void returnFG() {
-    // Membuat FutureGroup untuk menyimpan Future yang akan diproses
-    FutureGroup<int> futureGroup = FutureGroup<int>();
-
-    // Menambahkan Future yang ingin dijalankan secara paralel
-    futureGroup.add(returnOneAsync());
-    futureGroup.add(returnTwoAsync());
-    futureGroup.add(returnThreeAsync());
-
-    // Menutup FutureGroup, ini berarti kita sudah menambahkan semua Future
-    futureGroup.close();
-
-    // Setelah semua Future selesai, hasilnya akan diproses
-    futureGroup.future.then((List<int> value) {
-      // Menghitung total hasil dari ketiga Future
-      int total = 0;
-      for (var element in value) {
-        total += element;
-      }
-
-      // Update UI dengan hasil perhitungan
-      setState(() {
-        result = total.toString();
-      });
-    });
+  // Method returnError() untuk menunda dan melemparkan Exception
+  Future returnError() async {
+    await Future.delayed(const Duration(seconds: 2));
+    throw Exception('Something terrible happened!');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Future Group Example'),
+        title: const Text('Error Handling Demo'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             ElevatedButton(
-              // Mengubah onPressed untuk memanggil returnFG
               onPressed: () {
-                returnFG(); // Memanggil returnFG ketika tombol ditekan
+                // Menjalankan returnError() dan menangani error dengan then, catchError, dan whenComplete
+                returnError().then((value) {
+                  setState(() {
+                    result = 'Success';
+                  });
+                }).catchError((onError) {
+                  setState(() {
+                    result = onError.toString();
+                  });
+                }).whenComplete(() {
+                  print('Complete');
+                });
               },
-              child: const Text('GO!'),
+              child: const Text('Trigger Error'),
             ),
             const SizedBox(height: 20),
-            Text('Result: $result', style: TextStyle(fontSize: 24)),
+            Text(
+              result,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
           ],
         ),
       ),
