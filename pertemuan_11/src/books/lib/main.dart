@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Future Demo - Filla', // Tambahkan nama panggilan
+      title: 'Async/Await Demo - Filla',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -31,68 +29,57 @@ class FuturePage extends StatefulWidget {
 }
 
 class _FuturePageState extends State<FuturePage> {
-  String result = ''; // Menyimpan hasil pengambilan data
-  bool isLoading = false; // Untuk mengontrol tampilan loading
+  String result = '';
 
-  /// Method untuk mengambil data dari API Google Books
-  Future<http.Response> getData() async {
-    const authority = 'www.googleapis.com';
-    const path = '/books/v1/volumes/EEr3DQAAQBAJ';
-    Uri url = Uri.https(authority, path);
-    return http.get(url);
+  /// Method asinkron untuk simulasi proses
+  Future<int> returnOneAsync() async {
+    await Future.delayed(const Duration(seconds: 3));
+    return 1;
   }
 
-  /// Method untuk memulai pengambilan data dan memperbarui UI
-  void fetchData() async {
-    setState(() {
-      isLoading = true; // Menampilkan animasi loading
-    });
+  Future<int> returnTwoAsync() async {
+    await Future.delayed(const Duration(seconds: 3));
+    return 2;
+  }
 
-    try {
-      http.Response response = await getData();
-      if (response.statusCode == 200) {
-        setState(() {
-          result = response.body; // Menampilkan hasil respons
-        });
-      } else {
-        setState(() {
-          result = 'Error: ${response.statusCode}'; // Menampilkan error
-        });
-      }
-    } catch (e) {
-      setState(() {
-        result = 'Error: $e'; // Menangkap kesalahan
-      });
-    } finally {
-      setState(() {
-        isLoading = false; // Sembunyikan animasi loading
-      });
-    }
+  Future<int> returnThreeAsync() async {
+    await Future.delayed(const Duration(seconds: 3));
+    return 3;
+  }
+
+  /// Method untuk menghitung total
+  Future<void> count() async {
+    int total = 0;
+    total += await returnOneAsync();
+    total += await returnTwoAsync();
+    total += await returnThreeAsync();
+
+    setState(() {
+      result = total.toString();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Back from the Future'),
+        title: const Text('Async/Await Demo'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
+              onPressed: () {
+                count(); // Panggil metode count
+              },
               child: const Text('GO!'),
-              onPressed: fetchData, // Panggil method fetchData
             ),
             const SizedBox(height: 20),
-            if (isLoading) ...[
-              const CircularProgressIndicator(), // Animasi loading
-            ] else ...[
-              Text(
-                result,
-                style: const TextStyle(fontSize: 18),
-              ),
-            ],
+            Text(
+              result,
+              style: const TextStyle(fontSize: 18),
+            ),
           ],
         ),
       ),
