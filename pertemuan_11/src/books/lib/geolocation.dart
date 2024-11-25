@@ -14,39 +14,31 @@ class _LocationScreenState extends State<LocationScreen> {
   @override
   void initState() {
     super.initState();
-    // Inisialisasi Future
     position = getPosition();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Current Location by Filla'),
-      ),
+      appBar: AppBar(title: const Text('Current Location - Filla')),
       body: Center(
-        // Menggunakan FutureBuilder untuk memproses Future
-        child: FutureBuilder<Position>(
+        child: FutureBuilder(
           future: position,
           builder: (BuildContext context, AsyncSnapshot<Position> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              // Menampilkan animasi loading
               return const CircularProgressIndicator();
             } else if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                // Tampilkan data jika Future berhasil
-                final data = snapshot.data!;
-                return Text(
-                  'Latitude: ${data.latitude}\nLongitude: ${data.longitude}',
-                  textAlign: TextAlign.center,
-                );
-              } else if (snapshot.hasError) {
-                // Tampilkan pesan error jika Future gagal
-                return Text('Error: ${snapshot.error}');
+              if (snapshot.hasError) {
+                // Menangani error
+                return const Text('Something terrible happened!');
               }
+              // Tampilkan data lokasi
+              return Text(
+                  'Latitude: ${snapshot.data?.latitude}, Longitude: ${snapshot.data?.longitude}');
+            } else {
+              // Kondisi default jika tidak ada data
+              return const Text('');
             }
-            // Default return jika kondisi lain
-            return const Text('No data available');
           },
         ),
       ),
@@ -54,23 +46,12 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   Future<Position> getPosition() async {
-    // Memastikan layanan lokasi aktif
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      throw Exception('Location services are disabled');
+      throw Exception('Location services are disabled!');
     }
-
-    // Meminta izin lokasi
-    LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      throw Exception('Location permissions are denied');
-    }
-
-    // Menambahkan delay untuk simulasi loading
     await Future.delayed(const Duration(seconds: 3));
-
-    // Mengambil posisi perangkat
-    return await Geolocator.getCurrentPosition();
+    Position position = await Geolocator.getCurrentPosition();
+    return position;
   }
 }
