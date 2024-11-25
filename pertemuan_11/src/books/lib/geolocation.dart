@@ -9,41 +9,68 @@ class LocationScreen extends StatefulWidget {
 }
 
 class _LocationScreenState extends State<LocationScreen> {
-  String myPosition = '';
+  Future<Position>? position;
 
   @override
   void initState() {
     super.initState();
-    getPosition().then((Position myPos) {
-      myPosition =
-          'Latitude: ${myPos.latitude.toString()} \nLongitude: ${myPos.longitude.toString()}';
-      setState(() {
-        myPosition = myPosition;
-      });
-    });
+    // Inisialisasi Future
+    position = getPosition();
   }
 
   @override
   Widget build(BuildContext context) {
-    final myWidget = myPosition == ''
-        ? const CircularProgressIndicator() // Animasi loading
-        : Text(myPosition); // Teks lokasi jika data tersedia
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Current Location by Filla'),
       ),
-      body: Center(child: myWidget),
+      body: Center(
+        // Menggunakan FutureBuilder untuk memproses Future
+        child: FutureBuilder<Position>(
+          future: position,
+          builder: (BuildContext context, AsyncSnapshot<Position> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              // Menampilkan animasi loading
+              return const CircularProgressIndicator();
+            } else if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasData) {
+                // Tampilkan data jika Future berhasil
+                final data = snapshot.data!;
+                return Text(
+                  'Latitude: ${data.latitude}\nLongitude: ${data.longitude}',
+                  textAlign: TextAlign.center,
+                );
+              } else if (snapshot.hasError) {
+                // Tampilkan pesan error jika Future gagal
+                return Text('Error: ${snapshot.error}');
+              }
+            }
+            // Default return jika kondisi lain
+            return const Text('No data available');
+          },
+        ),
+      ),
     );
   }
 
   Future<Position> getPosition() async {
-    // Menambahkan delay agar animasi loading terlihat
+    // Memastikan layanan lokasi aktif
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception('Location services are disabled');
+    }
+
+    // Meminta izin lokasi
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      throw Exception('Location permissions are denied');
+    }
+
+    // Menambahkan delay untuk simulasi loading
     await Future.delayed(const Duration(seconds: 3));
 
-    await Geolocator.requestPermission();
-    await Geolocator.isLocationServiceEnabled();
-    Position? position = await Geolocator.getCurrentPosition();
-    return position;
+    // Mengambil posisi perangkat
+    return await Geolocator.getCurrentPosition();
   }
 }
