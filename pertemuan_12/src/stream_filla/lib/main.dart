@@ -1,5 +1,7 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'stream.dart';  // Mengimpor file stream.dart
+import 'stream.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,9 +13,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Stream Filla',  // Menampilkan nama aplikasi
+      title: 'Stream Filla',
       theme: ThemeData(
-        primarySwatch: Colors.lightBlue,  // Menggunakan tema biru muda
+        primarySwatch: Colors.lightBlue, // Warna tema biru muda
       ),
       home: const StreamHomePage(),
     );
@@ -28,41 +30,66 @@ class StreamHomePage extends StatefulWidget {
 }
 
 class _StreamHomePageState extends State<StreamHomePage> {
-  Color bgColor = Colors.blueGrey;  // Warna latar belakang default
-  late ColorStream colorStream;  // Objek ColorStream untuk streaming warna
+  int lastNumber = 0; // Angka terakhir yang diterima
+  late StreamController numberStreamController; // Kontrol Stream
+  late NumberStream numberStream; // Objek NumberStream
 
-  // Override initState() untuk inisialisasi objek dan mulai mendengarkan stream
   @override
   void initState() {
-    super.initState();  // Panggil initState() dari superclass
-    colorStream = ColorStream();  // Inisialisasi objek ColorStream
-    changeColor();  // Mulai mendengarkan stream warna dengan changeColor()
-  }
+    super.initState();
 
-  // Menggunakan listen() untuk mendengarkan stream
-  void changeColor() {
-    colorStream.getColors().listen((eventColor) {
+    // Inisialisasi NumberStream dan StreamController
+    numberStream = NumberStream();
+    numberStreamController = numberStream.controller;
+
+    // Listener untuk memperbarui lastNumber
+    Stream stream = numberStreamController.stream;
+    stream.listen((event) {
       setState(() {
-        bgColor = eventColor;  // Mengubah warna latar belakang dengan warna baru dari stream
+        lastNumber = event;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    // Menutup StreamController saat widget dihapus
+    numberStreamController.close();
+    super.dispose();
+  }
+
+  void addRandomNumber() {
+    // Generate angka acak dan tambahkan ke sink
+    Random random = Random();
+    int myNum = random.nextInt(10); // Angka acak antara 0-9
+    numberStream.addNumberToSink(myNum);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stream'),  // Judul aplikasi
+        title: const Text('Stream Filla'), // Nama panggilan dalam judul
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          color: bgColor,  // Mengubah warna latar belakang sesuai stream
-        ),
-        child: Center(
-          child: Text(
-            'Streaming Color!',
-            style: TextStyle(fontSize: 24, color: Colors.white),
-          ),
+      body: SizedBox(
+        width: double.infinity, // Memanfaatkan lebar penuh layar
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ruang antar elemen
+          crossAxisAlignment: CrossAxisAlignment.center, // Elemen di tengah horizontal
+          children: [
+            Text(
+              lastNumber.toString(), // Menampilkan angka terakhir
+              style: const TextStyle(
+                fontSize: 32, // Ukuran teks besar
+                fontWeight: FontWeight.bold,
+                color: Colors.lightBlue, // Warna teks
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => addRandomNumber(), // Panggil addRandomNumber saat tombol ditekan
+              child: const Text('New Random Number'), // Label tombol
+            ),
+          ],
         ),
       ),
     );

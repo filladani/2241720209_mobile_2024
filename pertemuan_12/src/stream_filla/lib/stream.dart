@@ -1,5 +1,37 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'dart:async';  // Mengimpor pustaka dart:async untuk bekerja dengan StreamController dan Sinks
+
+
+class NumberStream {
+  // Membuat StreamController untuk mengontrol stream yang berisi angka bertipe int
+  final StreamController<int> controller = StreamController<int>();
+
+  // Properti sink untuk menambahkan data ke dalam stream
+  Sink<int> get sink => controller.sink;
+
+  // Properti stream untuk mendengarkan data yang dikirimkan melalui stream
+  Stream<int> get stream => controller.stream;
+
+  // Method untuk menghasilkan angka secara berurutan dan mengirimkannya melalui stream
+  void generateNumbers() async {
+    for (int i = 0; i < 10; i++) {
+      await Future.delayed(Duration(seconds: 1)); // Delay 1 detik
+      sink.add(i); // Menambahkan angka ke dalam stream
+    }
+    close(); // Menutup controller setelah selesai
+  }
+
+  // Method untuk menambahkan angka baru ke dalam sink
+  void addNumberToSink(int newNumber) {
+    controller.sink.add(newNumber); // Menambahkan angka ke dalam sink (stream)
+  }
+
+  // Method untuk menutup StreamController
+  void close() {
+    controller.close(); // Menutup controller
+  }
+}
 
 class ColorStream {
   final StreamController<Color> _streamController = StreamController<Color>();
