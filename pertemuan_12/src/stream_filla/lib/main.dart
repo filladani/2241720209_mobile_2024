@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'stream.dart'; // Mengimpor file stream.dart
 
 void main() {
   runApp(const MyApp());
@@ -10,9 +11,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Stream Filla', // Tambahkan nama panggilan
+      title: 'Stream Filla', // Menampilkan nama aplikasi
       theme: ThemeData(
-        primarySwatch: Colors.lightBlue, // Ganti warna tema ke biru muda
+        primarySwatch: Colors.lightBlue, // Menggunakan tema biru muda
       ),
       home: const StreamHomePage(),
     );
@@ -27,15 +28,42 @@ class StreamHomePage extends StatefulWidget {
 }
 
 class _StreamHomePageState extends State<StreamHomePage> {
+  Color bgColor = Colors.blueGrey; // Warna latar belakang default
+  late ColorStream colorStream; // Objek ColorStream untuk streaming warna
+
+  // Override initState() untuk inisialisasi objek dan mulai mendengarkan stream
+  @override
+  void initState() {
+    super.initState(); // Panggil initState() dari superclass
+    colorStream = ColorStream(); // Inisialisasi objek ColorStream
+    changeColor(); // Mulai mendengarkan stream warna dengan changeColor()
+  }
+
+  // Menambahkan metode changeColor
+  void changeColor() async {
+    await for (var eventColor in colorStream.getColors()) {
+      setState(() {
+        bgColor =
+            eventColor; // Mengubah warna latar belakang dengan warna baru dari stream
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stream Home Page'),
+        title: const Text('Stream Filla'), // Judul aplikasi
       ),
-      body: Center(
-        child: Container(
-          child: const Text('Welcome to Stream Home Page!'),
+      body: Container(
+        decoration: BoxDecoration(
+          color: bgColor, // Mengubah warna latar belakang sesuai stream
+        ),
+        child: Center(
+          child: Text(
+            'Streaming Color!',
+            style: TextStyle(fontSize: 24, color: Colors.white),
+          ),
         ),
       ),
     );
