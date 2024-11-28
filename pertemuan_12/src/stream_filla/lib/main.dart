@@ -1,7 +1,7 @@
+import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'stream.dart';
+import 'stream.dart'; // pastikan untuk mengimpor stream.dart
 
 void main() {
   runApp(const MyApp());
@@ -13,9 +13,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Stream Filla',
+      title: 'Stream Example',
       theme: ThemeData(
-        primarySwatch: Colors.lightBlue, // Warna tema biru muda
+        primarySwatch: Colors.blue,
       ),
       home: const StreamHomePage(),
     );
@@ -30,64 +30,70 @@ class StreamHomePage extends StatefulWidget {
 }
 
 class _StreamHomePageState extends State<StreamHomePage> {
-  int lastNumber = 0; // Angka terakhir yang diterima
-  late StreamController numberStreamController; // Kontrol Stream
-  late NumberStream numberStream; // Objek NumberStream
+  int lastNumber = 0;
+  late StreamController<int> numberStreamController;
+  late NumberStream numberStream;
 
   @override
   void initState() {
     super.initState();
-
-    // Inisialisasi NumberStream dan StreamController
     numberStream = NumberStream();
     numberStreamController = numberStream.controller;
 
-    // Listener untuk memperbarui lastNumber
-    Stream stream = numberStreamController.stream;
-    stream.listen((event) {
-      setState(() {
-        lastNumber = event;
-      });
-    });
+    // Mengambil stream dan menambahkan listener
+    Stream<int> stream = numberStreamController.stream;
+
+    // Mendengarkan stream dan menangani data serta error
+    stream.listen(
+      (event) {
+        setState(() {
+          lastNumber = event; // Menangani data
+        });
+      },
+      onError: (error) {
+        setState(() {
+          lastNumber = -1; // Menangani error
+        });
+      },
+    );
+  }
+
+  // Method untuk menambah angka acak ke sink
+  void addRandomNumber() {
+    Random random = Random();
+    int myNum = random.nextInt(10); // Membuat angka acak
+    numberStream.addNumberToSink(myNum); // Menambah angka acak ke sink
+    // Men-trigger error di-comment untuk praktikum selanjutnya
+    // numberStream.addError(); 
   }
 
   @override
   void dispose() {
-    // Menutup StreamController saat widget dihapus
-    numberStreamController.close();
+    numberStreamController.close(); // Menutup stream controller
     super.dispose();
-  }
-
-  void addRandomNumber() {
-    // Generate angka acak dan tambahkan ke sink
-    Random random = Random();
-    int myNum = random.nextInt(10); // Angka acak antara 0-9
-    numberStream.addNumberToSink(myNum);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stream Filla'), // Nama panggilan dalam judul
+        title: const Text('Stream Example'),
       ),
       body: SizedBox(
-        width: double.infinity, // Memanfaatkan lebar penuh layar
+        width: double.infinity,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ruang antar elemen
-          crossAxisAlignment: CrossAxisAlignment.center, // Elemen di tengah horizontal
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              lastNumber.toString(), // Menampilkan angka terakhir
-              style: const TextStyle(
-                fontSize: 32, // Ukuran teks besar
-                fontWeight: FontWeight.bold,
-                color: Colors.lightBlue, // Warna teks
-              ),
+            Text(lastNumber.toString()), // Menampilkan angka terakhir
+            ElevatedButton(
+              onPressed: addRandomNumber, // Menambah angka acak ke sink
+              child: const Text('New Random Number'),
             ),
             ElevatedButton(
-              onPressed: () => addRandomNumber(), // Panggil addRandomNumber saat tombol ditekan
-              child: const Text('New Random Number'), // Label tombol
+              onPressed: numberStream.addError, // Men-trigger error
+              child: const Text('Trigger Error'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             ),
           ],
         ),

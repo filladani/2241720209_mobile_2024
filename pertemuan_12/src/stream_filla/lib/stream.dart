@@ -4,6 +4,12 @@ import 'dart:async';  // Mengimpor pustaka dart:async untuk bekerja dengan Strea
 
 
 class NumberStream {
+
+  // Method untuk menambahkan error ke sink
+  void addError() {
+    controller.sink.addError('error');
+  }
+  
   // Membuat StreamController untuk mengontrol stream yang berisi angka bertipe int
   final StreamController<int> controller = StreamController<int>();
 
