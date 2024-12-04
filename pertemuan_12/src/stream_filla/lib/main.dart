@@ -32,27 +32,51 @@ class _StreamHomePageState extends State<StreamHomePage> {
         lastNumber = event;
       });
     });
+
+    // Menambahkan onError untuk menangani error dari stream
+    subscription.onError((error) {
+      setState(() {
+        lastNumber = -1; // Tampilkan nilai -1 jika terjadi error
+      });
+    });
+
+    // Menambahkan onDone untuk menangani ketika stream selesai
+    subscription.onDone(() {
+      print('OnDone was called');
+    });
   }
 
   @override
   void dispose() {
-    // Membatalkan subscription untuk menghindari memory leaks
+    // Membatalkan subscription untuk mencegah kebocoran memori
     subscription.cancel();
-    numberStreamController.close();
     super.dispose();
   }
 
   void addRandomNumber() {
     Random random = Random();
     int myNum = random.nextInt(10);
-    numberStream.addNumberToSink(myNum);
+    if (!numberStreamController.isClosed) {
+      // Menambahkan angka acak ke stream jika stream masih terbuka
+      numberStream.addNumberToSink(myNum);
+    } else {
+      // Jika stream sudah ditutup, set nilai lastNumber menjadi -1
+      setState(() {
+        lastNumber = -1;
+      });
+    }
+  }
+
+  void stopStream() {
+    // Menutup StreamController untuk menghentikan pengiriman event
+    numberStreamController.close();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stream Events Subscription'),
+        title: const Text('Stream Events with Stop'),
       ),
       body: SizedBox(
         width: double.infinity,
@@ -60,10 +84,14 @@ class _StreamHomePageState extends State<StreamHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(lastNumber.toString()),
+            Text(lastNumber.toString()), // Menampilkan nilai terakhir dari stream
             ElevatedButton(
-              onPressed: addRandomNumber,
+              onPressed: addRandomNumber, // Menambahkan angka acak ke stream
               child: const Text('New Random Number'),
+            ),
+            ElevatedButton(
+              onPressed: stopStream, // Menutup stream subscription
+              child: const Text('Stop Subscription'),
             ),
           ],
         ),
