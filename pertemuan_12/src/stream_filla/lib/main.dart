@@ -1,26 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
-import 'stream.dart'; // pastikan untuk mengimpor stream.dart
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Stream Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const StreamHomePage(),
-    );
-  }
-}
+import 'package:flutter/material.dart';
+import 'stream.dart';
 
 class StreamHomePage extends StatefulWidget {
   const StreamHomePage({super.key});
@@ -30,54 +11,48 @@ class StreamHomePage extends StatefulWidget {
 }
 
 class _StreamHomePageState extends State<StreamHomePage> {
-  int lastNumber = 0;
-  late StreamController<int> numberStreamController;
   late NumberStream numberStream;
+  late StreamController numberStreamController;
+  late StreamSubscription subscription;
+
+  int lastNumber = 0;
 
   @override
   void initState() {
     super.initState();
+
+    // Inisialisasi NumberStream dan StreamController
     numberStream = NumberStream();
     numberStreamController = numberStream.controller;
 
-    // Mengambil stream dan menambahkan listener
-    Stream<int> stream = numberStreamController.stream;
-
-    // Mendengarkan stream dan menangani data serta error
-    stream.listen(
-      (event) {
-        setState(() {
-          lastNumber = event; // Menangani data
-        });
-      },
-      onError: (error) {
-        setState(() {
-          lastNumber = -1; // Menangani error
-        });
-      },
-    );
-  }
-
-  // Method untuk menambah angka acak ke sink
-  void addRandomNumber() {
-    Random random = Random();
-    int myNum = random.nextInt(10); // Membuat angka acak
-    numberStream.addNumberToSink(myNum); // Menambah angka acak ke sink
-    // Men-trigger error di-comment untuk praktikum selanjutnya
-    // numberStream.addError(); 
+    // Mendapatkan Stream dan menambahkan listener
+    Stream stream = numberStreamController.stream;
+    subscription = stream.listen((event) {
+      setState(() {
+        lastNumber = event;
+      });
+    });
   }
 
   @override
   void dispose() {
-    numberStreamController.close(); // Menutup stream controller
+    // Membatalkan subscription untuk menghindari memory leaks
+    subscription.cancel();
+    numberStreamController.close();
     super.dispose();
+  }
+
+  void addRandomNumber() {
+    Random random = Random();
+    int myNum = random.nextInt(10);
+    numberStream.addNumberToSink(myNum);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stream Example'),
+        title: const Text('Stream Events Subscription'),
       ),
       body: SizedBox(
         width: double.infinity,
@@ -85,15 +60,10 @@ class _StreamHomePageState extends State<StreamHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(lastNumber.toString()), // Menampilkan angka terakhir
+            Text(lastNumber.toString()),
             ElevatedButton(
-              onPressed: addRandomNumber, // Menambah angka acak ke sink
+              onPressed: addRandomNumber,
               child: const Text('New Random Number'),
-            ),
-            ElevatedButton(
-              onPressed: numberStream.addError, // Men-trigger error
-              child: const Text('Trigger Error'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             ),
           ],
         ),
