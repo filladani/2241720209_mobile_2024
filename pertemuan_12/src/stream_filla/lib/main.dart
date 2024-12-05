@@ -3,53 +3,62 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'stream.dart';
 
-class StreamHomePage extends StatefulWidget {
-  const StreamHomePage({super.key});
+void main() {
+  runApp(MyApp());
+}
 
+class MyApp extends StatelessWidget {
   @override
-  State<StreamHomePage> createState() => _StreamHomePageState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Stream Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: StreamHomePage(),
+    );
+  }
+}
+
+class StreamHomePage extends StatefulWidget {
+  @override
+  _StreamHomePageState createState() => _StreamHomePageState();
 }
 
 class _StreamHomePageState extends State<StreamHomePage> {
-  late NumberStream numberStream;
-  late StreamController numberStreamController;
   late StreamSubscription subscription;
-
+  late StreamSubscription subscription2;
+  String values = '';
+  late NumberStream numberStream;
+  late StreamController<int> numberStreamController;
   int lastNumber = 0;
 
   @override
   void initState() {
     super.initState();
-
-    // Inisialisasi NumberStream dan StreamController
     numberStream = NumberStream();
     numberStreamController = numberStream.controller;
+    Stream<int> stream = numberStreamController.stream.asBroadcastStream();
 
-    // Mendapatkan Stream dan menambahkan listener
-    Stream stream = numberStreamController.stream;
+    // Subscription pertama
     subscription = stream.listen((event) {
       setState(() {
         lastNumber = event;
       });
     });
 
-    // Menambahkan onError untuk menangani error dari stream
-    subscription.onError((error) {
+    // Subscription kedua
+    subscription2 = stream.listen((event) {
       setState(() {
-        lastNumber = -1; // Tampilkan nilai -1 jika terjadi error
+        values += '$event ';
       });
-    });
-
-    // Menambahkan onDone untuk menangani ketika stream selesai
-    subscription.onDone(() {
-      print('OnDone was called');
     });
   }
 
   @override
   void dispose() {
-    // Membatalkan subscription untuk mencegah kebocoran memori
     subscription.cancel();
+    subscription2.cancel();
     super.dispose();
   }
 
@@ -57,10 +66,8 @@ class _StreamHomePageState extends State<StreamHomePage> {
     Random random = Random();
     int myNum = random.nextInt(10);
     if (!numberStreamController.isClosed) {
-      // Menambahkan angka acak ke stream jika stream masih terbuka
       numberStream.addNumberToSink(myNum);
     } else {
-      // Jika stream sudah ditutup, set nilai lastNumber menjadi -1
       setState(() {
         lastNumber = -1;
       });
@@ -68,7 +75,6 @@ class _StreamHomePageState extends State<StreamHomePage> {
   }
 
   void stopStream() {
-    // Menutup StreamController untuk menghentikan pengiriman event
     numberStreamController.close();
   }
 
@@ -76,7 +82,7 @@ class _StreamHomePageState extends State<StreamHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stream Events with Stop'),
+        title: const Text('Stream Example'),
       ),
       body: SizedBox(
         width: double.infinity,
@@ -84,13 +90,14 @@ class _StreamHomePageState extends State<StreamHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(lastNumber.toString()), // Menampilkan nilai terakhir dari stream
+            Text('Last number: $lastNumber'),  // Menampilkan angka terakhir
+            Text('Values: $values'),            // Menampilkan values yang terakumulasi
             ElevatedButton(
-              onPressed: addRandomNumber, // Menambahkan angka acak ke stream
-              child: const Text('New Random Number'),
+              onPressed: addRandomNumber,
+              child: const Text('Add Random Number'),
             ),
             ElevatedButton(
-              onPressed: stopStream, // Menutup stream subscription
+              onPressed: stopStream,
               child: const Text('Stop Subscription'),
             ),
           ],
